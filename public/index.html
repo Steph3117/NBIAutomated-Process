@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Validator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Email Validator Tool</h1>
+  <p>This tool maps emails to VANIDs and categorizes them into VALID, INVALID, or RISKY.</p>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label for="validation">Validation CSV:</label>
+    <input type="file" id="validation" name="validation_file" accept=".csv" required />
+
+    <label for="contacts">Contacts CSV:</label>
+    <input type="file" id="contacts" name="contacts_file" accept=".csv" required />
+
+    <button type="submit">Run Script</button>
+  </form>
+  <div id="loading" style="display:none;">Processing... Please wait.</div>
+
+  <div id="response"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
