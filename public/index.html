@@ -11,6 +11,15 @@
   <p>This tool maps emails to VANIDs and categorizes them into VALID, INVALID, or RISKY.</p>
 
   <form id="uploadForm" enctype="multipart/form-data">
+    <label for="validName">Valid File Name:</label>
+<input type="text" id="validName" placeholder="valid_emails.csv" />
+
+<label for="invalidName">Invalid File Name:</label>
+<input type="text" id="invalidName" placeholder="invalid_emails.csv" />
+
+<label for="riskyName">Risky File Name:</label>
+<input type="text" id="riskyName" placeholder="risky_emails.csv" />
+
     <label for="validation">Validation CSV:</label>
     <input type="file" id="validation" name="validation_file" accept=".csv" required />
 

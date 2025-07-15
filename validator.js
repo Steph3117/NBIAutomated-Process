@@ -1,3 +1,4 @@
+// validator.js
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
@@ -40,10 +41,10 @@ async function validateAndSplitFromBase(validationPath, contactsPath, outputFold
     };
   }
 
-  // Build email → VANID map
+  // Build email → VANID map (lowercased & trimmed)
   const emailToVANID = {};
   contactsData.forEach(row => {
-    const email = row.PreferredEmail?.trim().toLowerCase();
+    const email = row.PreferredEmail?.toString().trim().toLowerCase();
     if (email) {
       emailToVANID[email] = row.VANID;
     }
@@ -51,8 +52,8 @@ async function validateAndSplitFromBase(validationPath, contactsPath, outputFold
 
   // Process and filter data
   const finalData = validationData.map(row => {
-    const email = row.EMAILS?.trim().toLowerCase();
-    const statusDetail = row.STATUS?.split(': ').pop().trim();
+    const email = row.EMAILS?.toString().trim().toLowerCase();
+    const statusDetail = row.STATUS?.toString().split(':').pop().trim();
     const tempCategory = statusToCategory[statusDetail] || null;
     const vanid = emailToVANID[email];
 
@@ -74,16 +75,13 @@ async function validateAndSplitFromBase(validationPath, contactsPath, outputFold
     };
   }
 
-  // Ensure output folder exists
   if (!fs.existsSync(outputFolder)) {
     fs.mkdirSync(outputFolder, { recursive: true });
   }
 
-  // Save mapped data
   const mappedPath = path.join(outputFolder, 'mapped_emails.csv');
   fs.writeFileSync(mappedPath, parse(finalData, { fields: ['VANID', 'EMAILS', 'STATUS', 'TempCategory'] }));
 
-  // Save categorized subsets
   const downloads = [{ name: 'mapped_emails.csv', url: '/downloads/mapped_emails.csv' }];
   const categories = ['VALID', 'INVALID', 'RISKY'];
 
@@ -100,7 +98,6 @@ async function validateAndSplitFromBase(validationPath, contactsPath, outputFold
     }
   }
 
-  console.log(`✅ Files written to: ${outputFolder}`);
   return {
     message: "Processing complete!",
     downloads
