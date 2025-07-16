@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Validator Documentation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>📄 Email Validator Tool – Documentation</h1>
+
+  <nav>
+    <a href="index.html">← Back to Tool</a>
+  </nav>
+
+  <section>
+    <h2>Overview</h2>
+    <p>This tool helps match and categorize emails using a validation CSV and a contact list with VANIDs. It supports browser-only functionality with no backend.</p>
+  </section>
+
+  <section>
+    <h2>How It Works</h2>
+    <ol>
+      <li>Upload your Validation CSV (must contain <code>EMAILS</code> and <code>STATUS</code> columns).</li>
+      <li>Upload your Contacts CSV (must contain <code>PreferredEmail</code> and <code>VANID</code> columns).</li>
+      <li>Customize filenames for the outputs (optional).</li>
+      <li>The tool generates three categorized CSVs: <code>VALID</code>, <code>INVALID</code>, and <code>RISKY</code>.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Column Requirements</h2>
+    <table>
+      <thead>
+        <tr><th>File</th><th>Required Columns</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Validation CSV</td><td>EMAILS, STATUS</td></tr>
+        <tr><td>Contacts CSV</td><td>PreferredEmail, VANID</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Status Mappings</h2>
+    <p>The following status strings are automatically mapped to categories:</p>
+    <ul>
+      <li><strong>VALID</strong>: Valid</li>
+      <li><strong>INVALID</strong>: Address Invalid, Domain Invalid, Account Invalid, Mailbox Full, Accept-All, Disposable</li>
+      <li><strong>RISKY</strong>: Role Address, Unknown</li>
+    </ul>
+  </section>
+
+</body>
+</html>
