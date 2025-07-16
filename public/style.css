@@ -72,3 +72,46 @@ a {
 a:hover {
   text-decoration: underline;
 }
+/* App Header Layout */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0b5394;
+  color: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.logo-area h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.logo-area .tagline {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #cfe2ff;
+}
+
+.nav-bar {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.nav-bar a {
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  background-color: #083766;
+  transition: background-color 0.3s ease;
+}
+
+.nav-bar a:hover {
+  background-color: #05274e;
+}
