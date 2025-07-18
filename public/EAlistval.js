@@ -55,10 +55,11 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
   const validationData = await readCSVFile(valFile);
   const contactsData = await readCSVFile(conFile);
 
-  const emailToVANID = {};
+  // Map emails to ContactID
+  const emailToContactID = {};
   contactsData.forEach(row => {
     const email = (row.PreferredEmail || '').trim().toLowerCase();
-    emailToVANID[email] = row.VANID;
+    emailToContactID[email] = row.ContactID;
   });
 
   const finalData = [];
@@ -66,11 +67,11 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     const email = (row.EMAILS || '').trim().toLowerCase();
     const statusDetail = (row.STATUS || '').split(': ').pop().trim();
     const category = statusToCategory[statusDetail];
-    const vanid = emailToVANID[email];
+    const contactID = emailToContactID[email];
 
-    if (vanid && category) {
+    if (contactID && category) {
       finalData.push({
-        VANID: vanid,
+        ContactID: contactID,
         EMAILS: email,
         STATUS: row.STATUS,
         TempCategory: category

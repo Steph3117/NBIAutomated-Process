@@ -3,52 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Email Validator Documentation</title>
+  <title>Email Validator</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>📄 Email Validator Tool – Documentation</h1>
-
-  <nav>
-    <a href="index.html">← Back to Tool</a>
+  <header class="app-header">
+  <div class="logo-area">
+    <h1>Email Validator</h1>
+    <p class="tagline">NBI Internal tool</p>
+  </div>
+  <nav class="nav-bar">
+    <a href="index.html">NGP Email Validator</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="EveryAction.html">Every Action Email Validator</a>
   </nav>
+</header>
 
-  <section>
-    <h2>Overview</h2>
-    <p>This tool helps match and categorize emails using a validation CSV and a contact list with VANIDs. It supports browser-only functionality with no backend.</p>
-  </section>
 
-  <section>
-    <h2>How It Works</h2>
-    <ol>
-      <li>Upload your Validation CSV (must contain <code>EMAILS</code> and <code>STATUS</code> columns).</li>
-      <li>Upload your Contacts CSV (must contain <code>PreferredEmail</code> and <code>VANID</code> columns).</li>
-      <li>Customize filenames for the outputs (optional).</li>
-      <li>The tool generates three categorized CSVs: <code>VALID</code>, <code>INVALID</code>, and <code>RISKY</code>.</li>
-    </ol>
-  </section>
+  <h1>Email Validator Tool</h1>
+  <p>This tool maps emails to ContactIDs and categorizes them into VALID, INVALID, or RISKY.</p>
 
-  <section>
-    <h2>Column Requirements</h2>
-    <table>
-      <thead>
-        <tr><th>File</th><th>Required Columns</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Validation CSV</td><td>EMAILS, STATUS</td></tr>
-        <tr><td>Contacts CSV</td><td>PreferredEmail, VANID</td></tr>
-      </tbody>
-    </table>
-  </section>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label for="validName">Valid File Name:</label>
+<input type="text" id="validName" placeholder="valid_emails.csv" />
 
-  <section>
-    <h2>Status Mappings</h2>
-    <p>The following status strings are automatically mapped to categories:</p>
-    <ul>
-      <li><strong>VALID</strong>: Valid</li>
-      <li><strong>INVALID</strong>: Address Invalid, Domain Invalid, Account Invalid, Mailbox Full, Accept-All, Disposable</li>
-      <li><strong>RISKY</strong>: Role Address, Unknown</li>
-    </ul>
-  </section>
+<label for="invalidName">Invalid File Name:</label>
+<input type="text" id="invalidName" placeholder="invalid_emails.csv" />
+
+<label for="riskyName">Risky File Name:</label>
+<input type="text" id="riskyName" placeholder="risky_emails.csv" />
+
+    <label for="validation">Validation CSV:</label>
+    <input type="file" id="validation" name="validation_file" accept=".csv" required />
+
+    <label for="contacts">Contacts CSV:</label>
+    <input type="file" id="contacts" name="contacts_file" accept=".csv" required />
+
+    <button type="submit">Run Script</button>
+  </form>
+  <div id="loading" style="display:none;">Processing... Please wait.</div>
+
+  <div id="response"></div>
+
+<script type="module" src="EAlistval.js"></script>
 </body>
 </html>
