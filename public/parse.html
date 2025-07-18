@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Parser</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo-area">
+      <h1>Email Validator</h1>
+      <p class="tagline">NBI Internal Tool</p>
+    </div>
+    <nav class="nav-bar">
+      <a href="index.html">NGP Email Validator</a>
+      <a href="documentation.html">Documentation</a>
+      <a href="EveryAction.html">Every Action Email Validator</a>
+      <a href="parse.html">Parsing</a>
+      <a href="Hashing.html">Hashing</a>
+    </nav>
+  </header>
+
+  <h1>Parse Email Validator Tool</h1>
+  <p>This tool parses validation data and categorizes emails into VALID, INVALID, or RISKY based on status.</p>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label for="validName">Valid File Name:</label>
+    <input type="text" id="validName" placeholder="valid_emails.csv" />
+
+    <label for="invalidName">Invalid File Name:</label>
+    <input type="text" id="invalidName" placeholder="invalid_emails.csv" />
+
+    <label for="riskyName">Risky File Name:</label>
+    <input type="text" id="riskyName" placeholder="risky_emails.csv" />
+
+    <label for="validation">Validation CSV:</label>
+    <input type="file" id="validation" name="validation_file" accept=".csv" required />
+
+    <button type="submit">Run Parser</button>
+  </form>
+
+  <div id="loading" style="display:none;">Processing... Please wait.</div>
+  <div id="response"></div>
+
+  <script type="module" src="parse.js"></script>
+</body>
+</html>
