@@ -1,10 +1,8 @@
 import Papa from 'https://cdn.jsdelivr.net/npm/papaparse@5.4.1/+esm';
+import SparkMD5 from 'https://cdn.jsdelivr.net/npm/spark-md5@3.0.2/+esm';
 
-async function hashString(text) {
-  const msgBuffer = new TextEncoder().encode(text.trim().toLowerCase());
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+function hashString(text) {
+  return SparkMD5.hash(text.trim().toLowerCase()).toUpperCase();
 }
 
 async function readCSVFile(file) {
@@ -57,7 +55,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 
   for (let row of data) {
     const email = row[emailKey] || '';
-    row.HashedEmail = await hashString(email);
+    row.HashedEmail = hashString(email);
   }
 
   downloadCSV(data, outputName);

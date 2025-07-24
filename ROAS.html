@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NBI ROAS Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>NBI ROAS Tool</h1>
+    <header class="app-header">
+  <div class="logo-area">
+    <h1>Email Validator</h1>
+    <p class="tagline">NBI Internal tool</p>
+  </div>
+  <nav class="nav-bar">
+    <a href="index.html">NGP Email Validator</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="EveryAction.html">Every Action Email Validator</a>
+    <a href="parse.html">Parsing</a>
+    <a href="Hashing.html">Hashing</a>
+    <a href="ROAS.html">ROAS</a>
+  </nav>
+</header>
+<p>This tool helps find the ROAS for Origin Source Codes.</p>
+
+  <form id="uploadForm">
+    <label for="creationDate">Creation Date:</label>
+    <input type="date" id="creationDate" required>
+
+    <label for="actblueFile">Upload ActBlue CSV:</label>
+    <input type="file" id="actblueFile" accept=".csv" required>
+
+    <label for="nbiFile">Upload NBI CSV:</label>
+    <input type="file" id="nbiFile" accept=".csv" required>
+
+    <button type="submit">Process</button>
+  </form>
+  <div id="downloadButtons" style="display:none;">
+  <button id="downloadNBI">⬇ Download Updated NBI CSV</button>
+  <button id="downloadSummary">⬇ Download Summary CSV</button>
+</div>
+
+
+  <div id="results"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="ROAS.js"></script>
+</body>
+</html>
