@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ROAS Tool – Documentation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo-area">
+      <h1>ROAS Documentation</h1>
+      <p class="tagline">NBI Internal Tool</p>
+    </div>
+    <nav class="nav-bar">
+      <div class="dropdown">
+        <button class="dropbtn">Email Tools ⌄</button>
+        <div class="dropdown-content">
+          <a href="index.html">NGP Email Validator</a>
+          <a href="EveryAction.html">Every Action Email Validator</a>
+          <a href="parse.html">Parsing</a>
+          <a href="Hashing.html">Hashing</a>
+          <a href="documentation.html">Documentation</a>
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <button class="dropbtn">ROAS Tools ⌄</button>
+        <div class="dropdown-content">
+          <a href="ROAS.html">ROAS Calculator</a>
+          <a href="ROASDocumentation.html">ROAS Documentation</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <h1>📈 ROAS Tool – Full Documentation</h1>
+
+  <section>
+    <h2>What Is This Tool?</h2>
+    <p>
+      The ROAS (Return on Ad Spend) Tool is a browser-based utility designed to calculate donation outcomes by <strong>OriginCodeName</strong>. It compares ActBlue donor data with NBI user data to evaluate the performance of source codes.
+    </p>
+  </section>
+
+  <section>
+    <h2>How It Works</h2>
+    <ol>
+      <li>You select a <strong>Creation Date</strong> to be included on every output row.</li>
+      <li>You upload two files:
+        <ul>
+          <li><strong>ActBlue CSV</strong> containing donation records (with Donor Emails and Amounts).</li>
+          <li><strong>NBI CSV</strong> containing contact data (with PreferredEmail and OriginCodeName).</li>
+        </ul>
+      </li>
+      <li>The tool matches emails from NBI against ActBlue records.</li>
+      <li>Each NBI record is enriched with the corresponding donation amount and the selected creation date.</li>
+      <li>A summary is created for each unique <code>OriginCodeName</code>, showing:
+        <ul>
+          <li>Total Donated</li>
+          <li>Average Donated</li>
+          <li>Number of Donors</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Input File Formats</h2>
+    <table>
+      <thead>
+        <tr><th>File</th><th>Required Columns</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ActBlue CSV</td>
+          <td>Donor Email, Amount</td>
+          <td>Donation records with emails and amounts in dollars.</td>
+        </tr>
+        <tr>
+          <td>NBI CSV</td>
+          <td>PreferredEmail, OriginCodeName</td>
+          <td>Internal contact list with source tracking information.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Output Files</h2>
+    <ul>
+      <li><strong>Updated NBI CSV</strong> – Adds:
+        <ul>
+          <li><code>Creation Date</code> (from the date picker input)</li>
+          <li><code>Amount</code> (from ActBlue, matched by email)</li>
+        </ul>
+      </li>
+      <li><strong>Summary CSV</strong> – Aggregates by <code>OriginCodeName</code>:
+        <ul>
+          <li>Total Donated (sum of matched amounts)</li>
+          <li>Average Donated (only among donors)</li>
+          <li>Number of Donors (count where donation > 0)</li>
+        </ul>
+        <p>A final row labeled <strong>TOTAL</strong> includes grand totals and overall averages.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Matching & Calculation Rules</h2>
+    <ul>
+      <li>Email addresses are matched after converting to lowercase and trimming whitespace.</li>
+      <li>Only ActBlue rows with numeric <code>Amount</code> and non-empty <code>Donor Email</code> are used.</li>
+      <li>If an NBI email has no match, its amount is set to <code>0.00</code>.</li>
+      <li>Donors with zero amount are included in the final CSV but excluded from average and count in the summary.</li>
+      <li>The <code>OriginCodeName</code> is grouped as <code>Unknown</code> if blank or missing.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>How to Use the Tool</h2>
+    <ol>
+      <li>Go to the <a href="ROAS.html">ROAS Calculator</a> page.</li>
+      <li>Select the <strong>Creation Date</strong> (this will be added to all rows in the output).</li>
+      <li>Upload your <strong>ActBlue CSV</strong> and <strong>NBI CSV</strong>.</li>
+      <li>Click <strong>Process</strong>.</li>
+      <li>After processing, download buttons will appear for:
+        <ul>
+          <li>Updated NBI CSV</li>
+          <li>Summary CSV</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Best Practices</h2>
+    <ul>
+      <li>Always verify column headers are correctly named.</li>
+      <li>Pre-clean CSVs to remove duplicate or malformed entries.</li>
+      <li>Ensure all emails are in lowercase and consistently formatted (the script will normalize them, but better input = better output).</li>
+    </ul>
+  </section>
+
+</body>
+</html>
