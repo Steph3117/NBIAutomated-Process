@@ -54,15 +54,16 @@ function parseCSV(file) {
 function getSummaryIncludingZeros(data) {
   const summary = {};
 
-  // Initialize all OriginCodeNames
+  // Initialize and count all individuals per OriginCodeName
   data.forEach(row => {
     const origin = row["OriginCodeName"] || "Unknown";
     if (!summary[origin]) {
-      summary[origin] = { total: 0, count: 0 };
+      summary[origin] = { total: 0, count: 0, totalIndividuals: 0 };
     }
+    summary[origin].totalIndividuals += 1;
   });
 
-  // Aggregate donor data
+  // Count only those who donated
   data.forEach(row => {
     const origin = row["OriginCodeName"] || "Unknown";
     const amount = parseFloat(row["Amount"]);
@@ -76,19 +77,22 @@ function getSummaryIncludingZeros(data) {
     OriginCodeName: origin,
     "Total Donated": `$${stats.total.toFixed(2)}`,
     "Average Donated": stats.count > 0 ? `$${(stats.total / stats.count).toFixed(2)}` : `$0.00`,
-    "Number of Donors": stats.count
+    "Number of Donors": stats.count,
+    "Total Individuals in Source": stats.totalIndividuals
   }));
 
-  // Add totals row
+  // Totals row
   const totalAmount = summaryRows.reduce((sum, row) => sum + parseFloat(row["Total Donated"].replace('$', '')), 0);
   const totalDonors = summaryRows.reduce((sum, row) => sum + row["Number of Donors"], 0);
+  const totalIndividuals = summaryRows.reduce((sum, row) => sum + row["Total Individuals in Source"], 0);
   const avgDonation = totalDonors > 0 ? totalAmount / totalDonors : 0;
 
   summaryRows.push({
     OriginCodeName: "TOTAL",
     "Total Donated": `$${totalAmount.toFixed(2)}`,
     "Average Donated": `$${avgDonation.toFixed(2)}`,
-    "Number of Donors": totalDonors
+    "Number of Donors": totalDonors,
+    "Total Individuals in Source": totalIndividuals
   });
 
   return summaryRows;
@@ -105,16 +109,18 @@ function renderSummary(summaryRows) {
       <th>Total Donated</th>
       <th>Average Donated</th>
       <th>Number of Donors</th>
+      <th>Total Individuals in Source</th>
     </tr>
   `;
 
-  summaryRows.forEach((row, idx) => {
+  summaryRows.forEach((row) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${row["OriginCodeName"]}</strong></td>
       <td>${row["Total Donated"]}</td>
       <td>${row["Average Donated"]}</td>
       <td>${row["Number of Donors"]}</td>
+      <td>${row["Total Individuals in Source"]}</td>
     `;
     if (row["OriginCodeName"] === "TOTAL") {
       tr.style.fontWeight = "bold";

@@ -35,22 +35,25 @@
 </header>
 <p>This tool helps find the ROAS for Origin Source Codes.</p>
 
-  <form id="uploadForm">
-    <label for="creationDate">Creation Date:</label>
-    <input type="date" id="creationDate" required>
+<form id="uploadForm">
+  <h2>Upload Inputs</h2>
+  
+  <label for="creationDate">Creation Date:</label>
+  <input type="date" id="creationDate" required>
 
-    <label for="actblueFile">Upload ActBlue CSV:</label>
-    <input type="file" id="actblueFile" accept=".csv" required>
+  <label for="actblueFile">Upload ActBlue CSV:</label>
+  <input type="file" id="actblueFile" accept=".csv" required>
 
-    <label for="nbiFile">Upload NBI CSV:</label>
-    <input type="file" id="nbiFile" accept=".csv" required>
+  <label for="nbiFile">Upload NBI CSV:</label>
+  <input type="file" id="nbiFile" accept=".csv" required>
 
-    <button type="submit">Process</button>
-  </form>
-  <div id="downloadButtons" style="display:none;">
+  <button type="submit"> Process Files</button>
+</form>
+<div id="downloadButtons" style="display:none; margin-top: 30px;">
   <button id="downloadNBI">⬇ Download Updated NBI CSV</button>
   <button id="downloadSummary">⬇ Download Summary CSV</button>
 </div>
+
 
 
   <div id="results"></div>

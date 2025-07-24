@@ -38,7 +38,7 @@
   <section>
     <h2>What Is This Tool?</h2>
     <p>
-      The ROAS (Return on Ad Spend) Tool is a browser-based utility designed to calculate donation outcomes by <strong>OriginCodeName</strong>. It compares ActBlue donor data with NBI user data to evaluate the performance of source codes.
+      The ROAS (Return on Ad Spend) Tool is a browser-based utility designed to calculate donation outcomes by <strong>OriginCodeName</strong>. It compares ActBlue donor data with NBI user data to evaluate the performance of Campaigns ran by NBI.
     </p>
   </section>
 
@@ -140,6 +140,276 @@
       <li>Ensure all emails are in lowercase and consistently formatted (the script will normalize them, but better input = better output).</li>
     </ul>
   </section>
+  <section>
+    <h1>Code Breakdown (For Developers)</h1>
+    <h2>My Repo: <a href="https://github.com/Steph3117/NBIAutomated-Process" target="_blank">https://github.com/Steph3117/NBIAutomated-Process</a></h2>
+    <p>If you would like to add or change anything please feel free to fork it!</p>
+
+
+  <!-- Block 1 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>let updatedNBIData = [];
+let summaryData = [];</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Initialization</h2>
+      <p>We prepare two arrays to store the manipulated NBI data and the summary results.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 2 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const creationDate = document.getElementById('creationDate').value;
+  const actblueFile = document.getElementById('actblueFile').files[0];
+  const nbiFile = document.getElementById('nbiFile').files[0];
+
+  if (!creationDate || !actblueFile || !nbiFile) {
+    alert("Please complete all fields.");
+    return;
+  }</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Form Submission</h2>
+      <p>This event listener waits for the user to submit the form, prevents the default reload, and checks if all fields are filled.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 3 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>const actblueData = await parseCSV(actblueFile);
+const nbiData = await parseCSV(nbiFile);</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Parse CSV Files</h2>
+      <p>We asynchronously parse the uploaded ActBlue and NBI files using a CSV parser (Papa Parse).</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 4 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>const emailToAmount = {};
+actblueData.forEach(row => {
+  const email = row["Donor Email"]?.trim().toLowerCase();
+  const amount = parseFloat(row["Amount"]);
+  if (email && !isNaN(amount)) {
+    emailToAmount[email] = amount;
+  }
+});</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Index Donation Data</h2>
+      <p>Creates a map from donor email to donation amount for quick lookup when matching with NBI data.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 5 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>updatedNBIData = nbiData.map(row => {
+  const email = row["PreferredEmail"]?.trim().toLowerCase();
+  const matchedAmount = emailToAmount[email] || 0;
+  return {
+    ...row,
+    "Creation Date": creationDate,
+    "Amount": matchedAmount.toFixed(2)
+  };
+});</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Match and Enrich NBI Data</h2>
+      <p>We go through each NBI row, find the matching donation, and add it along with the creation date.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 6 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>summaryData = getSummaryIncludingZeros(updatedNBIData);
+renderSummary(summaryData);
+document.getElementById('downloadButtons').style.display = 'block';</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Generate and Display Summary</h2>
+      <p>Creates the summary stats by origin code and displays the download buttons for CSV output.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 7 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>function parseCSV(file) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: results => resolve(results.data),
+      error: err => reject(err)
+    });
+  });
+}</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>CSV Parsing Helper</h2>
+      <p>This helper function uses Papa Parse to convert the uploaded CSV into an array of objects.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+    <!-- Block 8 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>function getSummaryIncludingZeros(data) {
+  const summary = {};
+
+  data.forEach(row => {
+    const origin = row["OriginCodeName"] || "Unknown";
+    if (!summary[origin]) {
+      summary[origin] = { total: 0, count: 0, totalIndividuals: 0 };
+    }
+    summary[origin].totalIndividuals += 1;
+  });
+
+  data.forEach(row => {
+    const origin = row["OriginCodeName"] || "Unknown";
+    const amount = parseFloat(row["Amount"]);
+    if (!isNaN(amount) && amount > 0) {
+      summary[origin].total += amount;
+      summary[origin].count += 1;
+    }
+  });
+
+  const summaryRows = Object.entries(summary).map(([origin, stats]) => ({
+    OriginCodeName: origin,
+    "Total Donated": `$${stats.total.toFixed(2)}`,
+    "Average Donated": stats.count > 0 ? `$${(stats.total / stats.count).toFixed(2)}` : `$0.00`,
+    "Number of Donors": stats.count,
+    "Total Individuals in Source": stats.totalIndividuals
+  }));
+
+  const totalAmount = summaryRows.reduce((sum, row) => sum + parseFloat(row["Total Donated"].replace('$', '')), 0);
+  const totalDonors = summaryRows.reduce((sum, row) => sum + row["Number of Donors"], 0);
+  const totalIndividuals = summaryRows.reduce((sum, row) => sum + row["Total Individuals in Source"], 0);
+  const avgDonation = totalDonors > 0 ? totalAmount / totalDonors : 0;
+
+  summaryRows.push({
+    OriginCodeName: "TOTAL",
+    "Total Donated": `$${totalAmount.toFixed(2)}`,
+    "Average Donated": `$${avgDonation.toFixed(2)}`,
+    "Number of Donors": totalDonors,
+    "Total Individuals in Source": totalIndividuals
+  });
+
+  return summaryRows;
+}</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Summary Generator</h2>
+      <p>Calculates per-source and total stats: total donations, donors, average, and total individuals—even if some didn't donate.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 9 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>function renderSummary(summaryRows) {
+  const container = document.getElementById('results');
+  container.innerHTML = '&lt;h2&gt;Summary by OriginCodeName&lt;/h2&gt;';
+
+  const table = document.createElement('table');
+  table.innerHTML = `
+    &lt;tr&gt;
+      &lt;th&gt;OriginCodeName&lt;/th&gt;
+      &lt;th&gt;Total Donated&lt;/th&gt;
+      &lt;th&gt;Average Donated&lt;/th&gt;
+      &lt;th&gt;Number of Donors&lt;/th&gt;
+      &lt;th&gt;Total Individuals in Source&lt;/th&gt;
+    &lt;/tr&gt;
+  `;
+
+  summaryRows.forEach((row) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      &lt;td&gt;&lt;strong&gt;${row["OriginCodeName"]}&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;${row["Total Donated"]}&lt;/td&gt;
+      &lt;td&gt;${row["Average Donated"]}&lt;/td&gt;
+      &lt;td&gt;${row["Number of Donors"]}&lt;/td&gt;
+      &lt;td&gt;${row["Total Individuals in Source"]}&lt;/td&gt;
+    `;
+    if (row["OriginCodeName"] === "TOTAL") {
+      tr.style.fontWeight = "bold";
+      tr.style.borderTop = "2px solid #000";
+    }
+    table.appendChild(tr);
+  });
+
+  container.appendChild(table);
+}</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Render Summary Table</h2>
+      <p>Creates and injects a full HTML table based on the summary, with bold styling for the TOTAL row.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 10 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>document.getElementById('downloadNBI').addEventListener('click', () => {
+  const csv = Papa.unparse(updatedNBIData);
+  triggerDownload(csv, "Updated_NBI.csv");
+});
+
+document.getElementById('downloadSummary').addEventListener('click', () => {
+  const csv = Papa.unparse(summaryData);
+  triggerDownload(csv, "Summary_By_OriginCodeName.csv");
+});</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>CSV Download Buttons</h2>
+      <p>Triggers download of two CSVs: one with enriched NBI data and one with summary stats, both using PapaParse to convert to CSV.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+  <!-- Block 11 -->
+  <div class="container">
+    <div class="code-block">
+      <pre><code>function triggerDownload(csvString, filename) {
+  const blob = new Blob([csvString], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}</code></pre>
+    </div>
+    <div class="notes-block">
+      <h2>Download Utility</h2>
+      <p>This function creates a temporary link to a CSV blob and programmatically triggers the file download in the browser.</p>
+    </div>
+    <h1>____________________________________________________________</h1>
+  </div>
+
+
+  </section>
+
+
+
 
 </body>
 </html>

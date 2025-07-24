@@ -166,3 +166,48 @@ a:hover {
 .dropdown:hover .dropbtn {
   background-color: #05274e;
 }
+
+/* Results Table Styling */
+#results table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#results th, #results td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  font-size: 15px;
+}
+
+#results th {
+  background-color: #0b5394;
+  color: white;
+  font-weight: 600;
+  border: none;
+}
+
+#results tr:nth-child(even) td {
+  background-color: #f4f6fb;
+}
+
+#results tr:hover td {
+  background-color: #e8f0fe;
+}
+
+#results h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #0b5394;
+}
+
+#downloadButtons button {
+  width: auto;
+  display: inline-block;
+  margin-right: 12px;
+}
