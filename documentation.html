@@ -67,6 +67,133 @@
       <li><strong>RISKY</strong>: Role Address, Unknown</li>
     </ul>
   </section>
+  <section>
+    <h1>Code Breakdown (For Developers)</h1>
+    <h2>My Repo: <a href="https://github.com/Steph3117/NBIAutomated-Process" target="_blank">https://github.com/Steph3117/NBIAutomated-Process</a></h2>
+    <p>If you would like to add or change anything please feel free to fork it!</p> 
+  <h1>Email Validation Script Documentation</h1>
+
+  <h2>1. Importing PapaParse</h2>
+  <pre><code>import Papa from 'https://cdn.jsdelivr.net/npm/papaparse@5.4.1/+esm';</code></pre>
+  <p>This imports the <strong>PapaParse</strong> library from a CDN using ESM syntax. PapaParse is a JavaScript library used to read and write CSV files easily.</p>
+
+  <h2> 2. Status Mapping</h2>
+  <pre><code>const statusToCategory = {
+  "Valid": "VALID",
+  "Address Invalid": "INVALID",
+  "Domain Invalid": "INVALID",
+  "Account Invalid": "INVALID",
+  "Mailbox Full": "INVALID",
+  "Accept-All": "INVALID",
+  "Role Address": "RISKY",
+  "Disposable": "INVALID",
+  "Unknown": "RISKY"
+};</code></pre>
+  <p>This object maps email status strings (from the validation file) to three simplified NBI categories: <code>VALID</code>, <code>INVALID</code>, or <code>RISKY</code>.</p>
+
+  <h2>3. Reading a CSV File</h2>
+  <pre><code>async function readCSVFile(file) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: results => resolve(results.data),
+      error: reject
+    });
+  });
+}</code></pre>
+  <p>This async function uses PapaParse to parse a CSV file and return an array of objects, where each object represents a row with headers as keys.</p>
+
+  <h2>4. Downloading a CSV File</h2>
+  <pre><code>function downloadCSV(data, filename) {
+  const csv = Papa.unparse(data);
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.textContent = `Download ${filename}`;
+  document.getElementById('response').appendChild(link);
+  document.getElementById('response').appendChild(document.createElement('br'));
+}</code></pre>
+  <p>
+    This function converts the data back into CSV format, creates a downloadable blob, and dynamically adds a download link to the page.
+  </p>
+
+  <h2>5. Form Submission Listener</h2>
+  <pre><code>document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  ...
+});</code></pre>
+  <p>This sets up an event listener for the form submission. It processes files when the user submits the form.</p>
+
+  <h3>5.1 Loading Feedback</h3>
+  <pre><code>document.getElementById("loading").style.display = "block";
+document.getElementById("response").innerHTML = '';</code></pre>
+  <p>Displays a loading message or spinner and clears any previous response content.</p>
+
+  <h3>5.2 File Input Handling</h3>
+  <pre><code>const valFile = document.getElementById('validation').files[0];
+const conFile = document.getElementById('contacts').files[0];</code></pre>
+  <p>Gets the uploaded files from the form inputs.</p>
+
+  <h3>5.3 Filename Defaults</h3>
+  <pre><code>const validName = document.getElementById('validName').value || 'valid_emails.csv';</code></pre>
+  <p>Allows the user to specify custom filenames or defaults to predefined ones.</p>
+
+  <h3>5.4 Validation Check</h3>
+  <pre><code>if (!valFile || !conFile) {
+  alert('Please upload both files.');
+  ...
+}</code></pre>
+  <p>Shows an alert and stops execution if one of the required files is missing.</p>
+
+  <h3>5.5 Read CSV Files</h3>
+  <pre><code>const validationData = await readCSVFile(valFile);
+const contactsData = await readCSVFile(conFile);</code></pre>
+  <p>Reads and parses both uploaded files into arrays of objects using the previously defined `readCSVFile` function.</p>
+
+  <h3>5.6 Build Email-to-VANID Map</h3>
+  <pre><code>const emailToVANID = {};
+contactsData.forEach(row => {
+  const email = (row.PreferredEmail || '').trim().toLowerCase();
+  emailToVANID[email] = row.VANID;
+});</code></pre>
+  <p>Creates a lookup table that maps email addresses to their corresponding VANIDs for easy referencing later.</p>
+
+  <h3>5.7 Match Emails with Status</h3>
+  <pre><code>validationData.forEach(row => {
+  ...
+});</code></pre>
+  <p>Loops through the validation file, finds the corresponding VANID, determines the email category (VALID, INVALID, or RISKY), and stores matched rows.</p>
+
+  <h3>5.8 Group by Category</h3>
+  <pre><code>const grouped = {
+  VALID: [],
+  INVALID: [],
+  RISKY: []
+};</code></pre>
+  <p>Initializes arrays for categorizing output data.</p>
+
+  <h3>5.9 Organize Final Data</h3>
+  <pre><code>finalData.forEach(row => {
+  const { TempCategory, ...outputRow } = row;
+  grouped[TempCategory]?.push(outputRow);
+});</code></pre>
+  <p>Distributes the data rows into the appropriate group based on the category.</p>
+
+  <h3>⬇5.10 Download CSVs</h3>
+  <pre><code>if (grouped.VALID.length) downloadCSV(grouped.VALID, validName);</code></pre>
+  <p>Triggers CSV downloads for each category if rows exist in that category.</p>
+
+  <h3>5.11 Final UI Update</h3>
+  <pre><code>document.getElementById("loading").style.display = "none";
+alert("Processing complete. Your files are ready for download.");</code></pre>
+  <p>Hides the loading indicator and notifies the user that the operation has finished.</p>
+
+  <hr>
+  <p><strong>Summary:</strong> This script processes two CSVs — one with email validation results and one with user data — matches emails to VANIDs, categorizes them, and downloads three separate CSV files (valid, invalid, risky).</p>
+
+  </section>
 
 </body>
 </html>
