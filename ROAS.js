@@ -16,26 +16,38 @@ document.getElementById('uploadForm').addEventListener('submit', async function 
   const actblueData = await parseCSV(actblueFile);
   const nbiData = await parseCSV(nbiFile);
 
-  const emailToAmount = {};
-  actblueData.forEach(row => {
-    const email = row["Donor Email"]?.trim().toLowerCase();
-    const amount = parseFloat(row["Amount"]);
-    if (email && !isNaN(amount)) {
-      emailToAmount[email] = amount;
-    }
-  });
+updatedNBIData = nbiData.map(row => {
+  const email = row["PreferredEmail"]?.trim().toLowerCase();
 
-  updatedNBIData = nbiData.map(row => {
-    const email = row["PreferredEmail"]?.trim().toLowerCase();
-    const matchedAmount = emailToAmount[email] || 0;
-    return {
-      ...row,
-      "Creation Date": creationDate,
-      "Amount": matchedAmount.toFixed(2)
-    };
-  });
+  // SUMIFS-like logic: sum all matching rows by email
+  const totalAmount = actblueData.reduce((sum, abRow) => {
+    const abEmail = abRow["Donor Email"]?.trim().toLowerCase();
+    const amount = parseFloat(abRow["Amount"]);
+    return (abEmail === email && !isNaN(amount)) ? sum + amount : sum;
+  }, 0);
 
-  summaryData = getSummaryIncludingZeros(updatedNBIData);
+  return {
+    ...row,
+    "Creation Date": creationDate,
+    "Amount": totalAmount.toFixed(2)
+  };
+});
+
+  let originField = "OriginCodeName";
+
+// Check for presence of OriginCodeName field
+if (!updatedNBIData[0]?.hasOwnProperty(originField)) {
+  originField = prompt(
+    `"OriginCodeName" field not found in the uploaded NBI file. Please enter the correct field name to group donations by (e.g., "Source", "List Name", etc.):`
+  );
+
+  if (!originField || !updatedNBIData[0]?.hasOwnProperty(originField)) {
+    alert(`Field "${originField}" not found in the file. Cannot generate summary.`);
+    return;
+  }
+}
+
+summaryData = getSummaryIncludingZeros(updatedNBIData, originField);
   renderSummary(summaryData);
   document.getElementById('downloadButtons').style.display = 'block';
 });
@@ -103,8 +115,10 @@ function renderSummary(summaryRows) {
   container.innerHTML = '<h2>Summary by OriginCodeName</h2>';
 
   const table = document.createElement('table');
+  table.id = 'summaryTable';
   table.innerHTML = `
     <tr>
+      <th>Select</th>
       <th>OriginCodeName</th>
       <th>Total Donated</th>
       <th>Average Donated</th>
@@ -114,23 +128,72 @@ function renderSummary(summaryRows) {
   `;
 
   summaryRows.forEach((row) => {
+    const isTotal = row["OriginCodeName"] === "TOTAL";
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
+      <td>${!isTotal ? `<input type="checkbox" class="origin-checkbox" data-origin="${row["OriginCodeName"]}" checked>` : ''}</td>
       <td><strong>${row["OriginCodeName"]}</strong></td>
       <td>${row["Total Donated"]}</td>
       <td>${row["Average Donated"]}</td>
       <td>${row["Number of Donors"]}</td>
       <td>${row["Total Individuals in Source"]}</td>
     `;
-    if (row["OriginCodeName"] === "TOTAL") {
+
+    if (isTotal) {
+      tr.id = "totalRow";
       tr.style.fontWeight = "bold";
       tr.style.borderTop = "2px solid #000";
     }
+
     table.appendChild(tr);
   });
 
+  // Add recalculate button
+  const buttonRow = document.createElement('tr');
+  buttonRow.innerHTML = `
+    <td colspan="6" style="text-align: right; padding-top: 10px;">
+      <button id="recalculateTotals">🔁 Recalculate Totals</button>
+    </td>
+  `;
+  table.appendChild(buttonRow);
+
   container.appendChild(table);
+
+  // Add event listener for recalculate
+  document.getElementById('recalculateTotals').addEventListener('click', updateTotalRow);
 }
+
+function updateTotalRow() {
+  const rows = Array.from(document.querySelectorAll('#summaryTable tr')).slice(1, -2); // exclude header + TOTAL + button
+  let totalAmount = 0;
+  let totalDonors = 0;
+  let totalIndividuals = 0;
+
+  rows.forEach(row => {
+    const checkbox = row.querySelector('input.origin-checkbox');
+    if (checkbox && checkbox.checked) {
+      const amount = parseFloat(row.cells[2].textContent.replace('$', '')) || 0;
+      const donors = parseInt(row.cells[4].textContent) || 0;
+      const individuals = parseInt(row.cells[5].textContent) || 0;
+      totalAmount += amount;
+      totalDonors += donors;
+      totalIndividuals += individuals;
+    }
+  });
+
+  const avgDonation = totalDonors > 0 ? (totalAmount / totalDonors).toFixed(2) : "0.00";
+  const totalRow = document.getElementById("totalRow");
+  totalRow.innerHTML = `
+    <td></td>
+    <td><strong>TOTAL</strong></td>
+    <td>$${totalAmount.toFixed(2)}</td>
+    <td>$${avgDonation}</td>
+    <td>${totalDonors}</td>
+    <td>${totalIndividuals}</td>
+  `;
+}
+ 
 
 // Download event listeners
 document.getElementById('downloadNBI').addEventListener('click', () => {
